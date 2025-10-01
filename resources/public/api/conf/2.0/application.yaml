@@ -37,8 +37,6 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/CustomsGuaranteesBalancesrequest'
-                - example:
-                    accessCode: ABC1
             example:
               accessCode: ABC1
         required: true
@@ -50,9 +48,6 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/GetBalanceOk'
-                  - example:
-                      balance: 12345678.90
-                      currency: GBP
               example:
                 _links:
                   self:
@@ -75,9 +70,6 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/NotFound'
                   - description: The guarantee reference number or access code did not match an existing guarantee.
-                    example:
-                      code: NOT_FOUND
-                      message: The guarantee reference number or access code did not match an existing guarantee.
               example:
                 code: NOT_FOUND
                 message: The guarantee reference number or access code did not match an existing guarantee.
@@ -88,9 +80,6 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/AcceptHeaderInvalid'
-                  - example:
-                      code: ACCEPT_HEADER_INVALID
-                      message: The Accept header must be set to application/vnd.hmrc.2.0+json to use this resource.
               example:
                 code: ACCEPT_HEADER_INVALID
                 message: The Accept header must be set to application/vnd.hmrc.2.0+json to use this resource.
@@ -102,9 +91,6 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/TooManyRequests'
                   - description: The rate limit was exceeded for the current user and guarantee.
-                    example:
-                      code: TOO_MANY_REQUESTS
-                      message: Guarantee balance not found.
               example:
                 code: TOO_MANY_REQUESTS
                 message: Too many requests.
