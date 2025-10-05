@@ -1,5 +1,4 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
     "$id": "#/post-get-guarantee-balance-request-schema.json",
     "description": "A balance request for the CTC Guarantee Balance API",
     "type": "object",
