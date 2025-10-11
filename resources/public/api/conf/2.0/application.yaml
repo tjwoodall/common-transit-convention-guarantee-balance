@@ -69,7 +69,7 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/NotFound'
-                  - description: The guarantee reference number or access code did not match an existing guarantee.
+                description: The guarantee reference number or access code did not match an existing guarantee.
               example:
                 code: NOT_FOUND
                 message: The guarantee reference number or access code did not match an existing guarantee.
@@ -90,7 +90,7 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/TooManyRequests'
-                  - description: The rate limit was exceeded for the current user and guarantee.
+                description: The rate limit was exceeded for the current user and guarantee.
               example:
                 code: TOO_MANY_REQUESTS
                 message: Too many requests.
@@ -116,7 +116,7 @@ components:
         _links:
           allOf:
             - $ref: '#/components/schemas/Links'
-            - description: An object containing links to other resources.
+          description: An object containing links to other resources.
         _embedded:
           type: object
           additionalProperties: {}
@@ -258,7 +258,7 @@ components:
         self:
           allOf:
             - $ref: '#/components/schemas/halLink'
-            - description: Hypertext Application Language (HAL) link object.
+          description: Hypertext Application Language (HAL) link object.
   parameters:
     acceptHeader:
       name: Accept
