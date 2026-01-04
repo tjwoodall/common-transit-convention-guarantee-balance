@@ -1,0 +1,509 @@
+openapi: 3.0.3
+info:
+  title: CTC Guarantee Balance
+  description: |
+    # Overview
+    Use the CTC Guarantee Balance API to provide traders with up-to-date
+    information about how much of their guarantee funds they have left to
+    use when organising transit movements. For a detailed overview of v2.0 of
+    the API, see [CTC Guarantee Balance API phase 5 service guide](/guides/ctc-guarantee-balance-phase5-service-guide).
+  contact: {}
+  version: "2.0"
+servers:
+- url: https://test-api.service.hmrc.gov.uk
+  description: Sandbox
+- url: https://api.service.hmrc.gov.uk
+  description: Production
+paths:
+  /customs/guarantees/{grn}/balance:
+    post:
+      summary: Get a balance
+      description: Get the balance associated with a guarantee reference number (GRN).
+      operationId: getGuaranteeBalance
+      parameters:
+      - name: Accept
+        in: header
+        description: "Specifies the response format and the [version](/api-documentation/docs/reference-guide#versioning)\
+          \ of the API to be used."
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - application/vnd.hmrc.2.0+json
+      - name: Content-Type
+        in: header
+        description: The media type of the request body.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - application/json
+      - name: grn
+        in: path
+        description: The guarantee reference number (GRN) of the guarantee.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          pattern: "^[0-9]{2}[A-Z]{2}[A-Z0-9]{12}[0-9]$"
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - accessCode
+              type: object
+              properties:
+                accessCode:
+                  maxLength: 4
+                  minLength: 4
+                  type: string
+                  description: The `accessCode` granting access to make use of the
+                    guarantee.
+              description: A balance request for the CTC Guarantee Balance API.
+              example:
+              - accessCode: ABC1
+            example:
+              accessCode: ABC1
+        required: true
+      responses:
+        "200":
+          description: A successful balance request response
+          content:
+            application/json:
+              schema:
+                required:
+                - balance
+                type: object
+                properties:
+                  _links:
+                    type: object
+                    additionalProperties:
+                      title: halLink
+                      required:
+                      - href
+                      type: object
+                      properties:
+                        href:
+                          type: string
+                          description: A link to another resource.
+                      description: Hypertext Application Language (HAL) link object.
+                    description: An object containing links to other resources.
+                  _embedded:
+                    type: object
+                    additionalProperties:
+                      title: hal-document-schema.json
+                      type: object
+                      properties:
+                        _links:
+                          type: object
+                          properties:
+                            self:
+                              required:
+                              - href
+                              type: object
+                              properties:
+                                href:
+                                  type: string
+                                  description: A link to another resource.
+                              description: Hypertext Application Language (HAL) link
+                                object.
+                          description: An object containing links to other resources.
+                        _embedded:
+                          type: object
+                          additionalProperties: {}
+                          description: An object containing embedded resources.
+                      description: Hypertext Application Language (HAL) document.
+                    description: An object containing embedded resources.
+                  balance:
+                    type: number
+                    description: The guarantee's balance.
+                  currency:
+                    pattern: "^[A-Z]{3}$"
+                    type: string
+                    description: The alphanumeric 3-character ISO currency code of
+                      the currency in which the balance is held.
+                description: A successful balance response.
+                example:
+                - balance: 1.23456789E7
+                  currency: GBP
+              example:
+                _links:
+                  self:
+                    href: /customs/guarantees/23GB0123456789AB2/balance
+                balance: 1.23456789E7
+                currency: GBP
+        "400":
+          description: Bad request or invalid guarantee type
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - title: Bad Request
+                  required:
+                  - code
+                  - message
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - BAD_REQUEST
+                    message:
+                      type: string
+                      description: The description of the error.
+                  description: "An error in the supplied payload, or the guarantee\
+                    \ reference number did not match the expected format."
+                  example:
+                    code: BAD_REQUEST
+                    message: The access code was not supplied.
+                - title: Invalid Guarantee Type
+                  required:
+                  - code
+                  - message
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - INVALID_GUARANTEE_TYPE
+                    message:
+                      type: string
+                      description: The description of the error.
+                  description: "The supplied guarantee reference number refers to\
+                    \ a guarantee that is not type 0, 1 or 9, and so a balance could\
+                    \ not be obtained."
+                  example:
+                    code: INVALID_GUARANTEE_TYPE
+                    message: Guarantee type is not supported.
+        "404":
+          description: Guarantee not found or invalid access code
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                - message
+                type: object
+                properties:
+                  code:
+                    type: string
+                    enum:
+                    - NOT_FOUND
+                  message:
+                    type: string
+                    description: The description of the error.
+                description: The guarantee reference number or access code did not
+                  match an existing guarantee.
+                example:
+                - code: NOT_FOUND
+                  message: The guarantee reference number or access code did not match
+                    an existing guarantee.
+              example:
+                code: NOT_FOUND
+                message: The guarantee reference number or access code did not match
+                  an existing guarantee.
+        "406":
+          description: Not Acceptable
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                - message
+                type: object
+                properties:
+                  code:
+                    type: string
+                    enum:
+                    - ACCEPT_HEADER_INVALID
+                  message:
+                    type: string
+                    description: The description of the error.
+                description: The `Accept` header was not set to `application/vnd.hmrc.2.0+json`.
+                example:
+                - code: ACCEPT_HEADER_INVALID
+                  message: The Accept header must be set to application/vnd.hmrc.2.0+json
+                    to use this resource.
+              example:
+                code: ACCEPT_HEADER_INVALID
+                message: The Accept header must be set to application/vnd.hmrc.2.0+json
+                  to use this resource.
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                required:
+                - code
+                - message
+                type: object
+                properties:
+                  code:
+                    type: string
+                    enum:
+                    - TOO_MANY_REQUESTS
+                  message:
+                    type: string
+                    description: The description of the error.
+                description: The rate limit was exceeded for the current user and
+                  guarantee.
+                example:
+                - code: TOO_MANY_REQUESTS
+                  message: Guarantee balance not found.
+              example:
+                code: TOO_MANY_REQUESTS
+                message: Too many requests.
+      deprecated: false
+      security:
+      - userRestricted:
+        - common-transit-convention-guarantee-balance
+components:
+  schemas:
+    errorResponse:
+      title: errorResponse
+      required:
+      - code
+      type: object
+      properties:
+        code:
+          type: string
+    hal-document-schema.json:
+      title: hal-document-schema.json
+      type: object
+      properties:
+        _links:
+          type: object
+          properties:
+            self:
+              required:
+              - href
+              type: object
+              properties:
+                href:
+                  type: string
+                  description: A link to another resource.
+              description: Hypertext Application Language (HAL) link object.
+          description: An object containing links to other resources.
+        _embedded:
+          type: object
+          additionalProperties: {}
+          description: An object containing embedded resources.
+      description: Hypertext Application Language (HAL) document.
+    CustomsGuaranteesBalancesrequest:
+      title: CustomsGuaranteesBalancesrequest
+      required:
+      - accessCode
+      type: object
+      properties:
+        accessCode:
+          maxLength: 4
+          minLength: 4
+          type: string
+          description: The `accessCode` granting access to make use of the guarantee.
+      description: A balance request for the CTC Guarantee Balance API.
+    GetBalanceOk:
+      title: Balance request successful
+      required:
+      - balance
+      type: object
+      properties:
+        _links:
+          type: object
+          additionalProperties:
+            title: halLink
+            required:
+            - href
+            type: object
+            properties:
+              href:
+                type: string
+                description: A link to another resource.
+            description: Hypertext Application Language (HAL) link object.
+          description: An object containing links to other resources.
+        _embedded:
+          type: object
+          additionalProperties:
+            title: hal-document-schema.json
+            type: object
+            properties:
+              _links:
+                type: object
+                properties:
+                  self:
+                    required:
+                    - href
+                    type: object
+                    properties:
+                      href:
+                        type: string
+                        description: A link to another resource.
+                    description: Hypertext Application Language (HAL) link object.
+                description: An object containing links to other resources.
+              _embedded:
+                type: object
+                additionalProperties: {}
+                description: An object containing embedded resources.
+            description: Hypertext Application Language (HAL) document.
+          description: An object containing embedded resources.
+        balance:
+          type: number
+          description: The guarantee's balance.
+        currency:
+          pattern: "^[A-Z]{3}$"
+          type: string
+          description: The alphanumeric 3-character ISO currency code of the currency
+            in which the balance is held.
+      description: A successful balance response.
+    BadRequest:
+      title: Bad Request
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - BAD_REQUEST
+        message:
+          type: string
+          description: The description of the error.
+      description: "An error in the supplied payload, or the guarantee reference number\
+        \ did not match the expected format."
+      example:
+        code: BAD_REQUEST
+        message: The access code was not supplied.
+    InvalidGuaranteeType:
+      title: Invalid Guarantee Type
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - INVALID_GUARANTEE_TYPE
+        message:
+          type: string
+          description: The description of the error.
+      description: "The supplied guarantee reference number refers to a guarantee\
+        \ that is not type 0, 1 or 9, and so a balance could not be obtained."
+      example:
+        code: INVALID_GUARANTEE_TYPE
+        message: Guarantee type is not supported.
+    NotFound:
+      title: NotFound
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - NOT_FOUND
+        message:
+          type: string
+          description: The description of the error.
+      description: A guarantee was not found that matched the supplied guarantee reference
+        number and access code.
+    TooManyRequests:
+      title: TooManyRequests
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - TOO_MANY_REQUESTS
+        message:
+          type: string
+          description: The description of the error.
+      description: The rate limit was exceeded for this user and guarantee.
+    AcceptHeaderInvalid:
+      title: AcceptHeaderInvalid
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - ACCEPT_HEADER_INVALID
+        message:
+          type: string
+          description: The description of the error.
+      description: The `Accept` header was not set to `application/vnd.hmrc.2.0+json`.
+    halLink:
+      title: halLink
+      required:
+      - href
+      type: object
+      properties:
+        href:
+          type: string
+          description: A link to another resource.
+      description: Hypertext Application Language (HAL) link object.
+    Links:
+      title: Links
+      type: object
+      properties:
+        self:
+          required:
+          - href
+          type: object
+          properties:
+            href:
+              type: string
+              description: A link to another resource.
+          description: Hypertext Application Language (HAL) link object.
+      description: An object containing links to other resources.
+  parameters:
+    acceptHeader:
+      name: Accept
+      in: header
+      description: "Specifies the response format and the [version](/api-documentation/docs/reference-guide#versioning)\
+        \ of the API to be used."
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        enum:
+        - application/vnd.hmrc.2.0+json
+    contentTypeHeader:
+      name: Content-Type
+      in: header
+      description: The media type of the request body.
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        enum:
+        - application/json
+  securitySchemes:
+    userRestricted:
+      type: oauth2
+      description: HMRC supports OAuth 2.0 for authenticating user restricted API
+        requests using an OAuth 2.0 Bearer Token in the AUTHORIZATION header. See
+        https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/user-restricted-endpoints
+        for details.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.service.hmrc.gov.uk/oauth/authorize
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          refreshUrl: https://api.service.hmrc.gov.uk/oauth/refresh
+          scopes:
+            common-transit-convention-guarantee-balance: Access all aspects of guarantee
+              balance.
