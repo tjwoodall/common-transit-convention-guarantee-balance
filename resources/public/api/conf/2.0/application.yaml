@@ -96,7 +96,7 @@ paths:
                 message: Too many requests.
       deprecated: false
       security:
-        - userRestricted:
+        - User-Restricted:
             - common-transit-convention-guarantee-balance
 components:
   schemas:
@@ -283,7 +283,7 @@ components:
           - application/json
       required: true
   securitySchemes:
-    userRestricted:
+    User-Restricted:
       type: oauth2
       description: >-
         HMRC supports OAuth 2.0 for authenticating user restricted API requests using
