@@ -44,8 +44,8 @@ import v2.models.GuaranteeReferenceNumber
 import v2.util.Generators
 import v2.util.TestActorSystem
 
-/** These tests test the full journey from request to response, via all parts of the system.
-  * Note that the authentication isn't done as part of this, so checking the internal IDs is not provided for here.
+/** These tests test the full journey from request to response, via all parts of the system. Note that the authentication isn't done as part of this, so
+  * checking the internal IDs is not provided for here.
   */
 class GuaranteeBalanceControllerIntegrationSpec
     extends AsyncFlatSpec
