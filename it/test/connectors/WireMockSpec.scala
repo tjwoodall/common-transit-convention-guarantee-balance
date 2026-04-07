@@ -47,10 +47,10 @@ trait WireMockSpec extends BeforeAndAfterEach with BeforeAndAfterAll with GuiceF
         portConfigKeys.map {
           key =>
             key -> wireMockServer.port.toString
-        } *
+        }*
       )
-      .configure(configuration *)
-      .overrides(bindings *)
+      .configure(configuration*)
+      .overrides(bindings*)
       .build()
 
   protected def bindings: Seq[GuiceableModule] = Seq.empty
