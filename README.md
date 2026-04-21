@@ -15,26 +15,29 @@ The easiest way to run MongoDB for local development is to use [Docker](https://
 
 ##### To run MongoDB
 
+###### On Linux and Intel macOS
 ```
-> docker run --restart unless-stopped -d -p 27017-27019:27017-27019 --name mongodb mongo:4.0 --replSet rs0
+> docker run --restart unless-stopped --name mongodb -p 27017:27017 -d percona/percona-server-mongodb:7.0 --replSet rs0
+```
+
+###### On Apple Silicon (for example M1 or M2) macOS
+```
+> docker run --restart unless-stopped --name mongodb -p 27017:27017 -d percona/percona-server-mongodb:7.0-multi --replSet rs0
 ```
 
 ##### To configure MongoDB to run as a replica set
 
 ```
-> docker exec -it mongodb mongo
-> rs.initiate()
-> exit
-> exit
+> docker exec -it mongodb mongosh --eval "rs.initiate();"
 ```
 
 #### Starting the application:
 
-Launch the service and all dependencies using `sm --start CTC_GUARANTEE_BALANCE_API`.
+Launch the service and all dependencies using `sm2 --start CTC_GUARANTEE_BALANCE_API`.
 
 This application runs on port 10207.
 
-To run with sbt, stop the Service Manager instance of this service using `sm --stop COMMON_TRANSIT_CONVENTION_GUARANTEE_BALANCE` before running with `sbt run` from the project folder.
+To run with sbt, stop the Service Manager instance of this service using `sm2 --stop COMMON_TRANSIT_CONVENTION_GUARANTEE_BALANCE` before running with `sbt run` from the project folder.
 
 ### Testing
 
